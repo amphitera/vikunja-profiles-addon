@@ -23,6 +23,7 @@ import (
 	"errors"
 	"hash/crc32"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"net/http"
@@ -216,6 +217,25 @@ func testTIFF(t *testing.T, width, height int) []byte {
 	return buf.Bytes()
 }
 
+// Google Camera portraits carry a depth map in extended XMP before the image data.
+func testJPEGWithMetadata(t *testing.T, width, height, segments int) []byte {
+	t.Helper()
+	var buf bytes.Buffer
+	require.NoError(t, jpeg.Encode(&buf, image.NewNRGBA(image.Rect(0, 0, width, height)), nil))
+	encoded := buf.Bytes()
+
+	const maxSegmentPayload = 0xffff - 2
+	segment := binary.BigEndian.AppendUint16([]byte{0xff, 0xe1}, 0xffff)
+	segment = append(segment, make([]byte, maxSegmentPayload)...)
+
+	// Insert right after the SOI marker.
+	out := append([]byte{}, encoded[:2]...)
+	for range segments {
+		out = append(out, segment...)
+	}
+	return append(out, encoded[2:]...)
+}
+
 // Only signature + IHDR: enough for image.DecodeConfig without allocating the pixels.
 func pngHeader(width, height uint32) []byte {
 	ihdr := []byte("IHDR")
@@ -386,6 +406,10 @@ func TestPreviewGenerator_ClosesEverySourceHandle(t *testing.T) {
 			content: testPNG(t, 400, 300),
 			opened:  2,
 		},
+		"image with more than 1 MiB of metadata before the image data": {
+			content: testJPEGWithMetadata(t, 400, 300, 24),
+			opened:  2,
+		},
 		"undecodable image": {
 			content:        append(pngHeader(400, 300), []byte("not image data")...),
 			opened:         2,
@@ -398,7 +422,7 @@ func TestPreviewGenerator_ClosesEverySourceHandle(t *testing.T) {
 			tooLarge:       true,
 		},
 		"image whose header is past the read limit is never opened for decoding": {
-			content:        testTIFF(t, 1024, 512),
+			content:        testTIFF(t, 1024, maxPreviewHeaderBytes/(4*1024)+1),
 			opened:         1,
 			notPreviewable: true,
 		},

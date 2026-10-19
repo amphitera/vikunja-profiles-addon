@@ -337,7 +337,7 @@ const (
 	previewPixelBudget    = 2 * imageutils.MaxPixels
 	previewQueueTimeout   = 30 * time.Second
 	maxPreviewSourceBytes = 50 << 20
-	maxPreviewHeaderBytes = 1 << 20
+	maxPreviewHeaderBytes = 12 << 20
 )
 
 var attachmentPreviews = newPreviewGenerator(previewPixelBudget, previewQueueTimeout)
