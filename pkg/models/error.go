@@ -1093,7 +1093,7 @@ func (err ErrTaskAttachmentPreviewBusy) Error() string {
 }
 
 // ErrCodeTaskAttachmentPreviewBusy holds the unique world-error code of this error
-const ErrCodeTaskAttachmentPreviewBusy = 4036
+const ErrCodeTaskAttachmentPreviewBusy = 4037
 
 // HTTPError holds the http error description
 func (err ErrTaskAttachmentPreviewBusy) HTTPError() web.HTTPError {
