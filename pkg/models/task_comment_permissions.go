@@ -28,8 +28,7 @@ func (tc *TaskComment) CanRead(s *xorm.Session, a web.Auth) (bool, int, error) {
 }
 
 func (tc *TaskComment) canUserModifyTaskComment(s *xorm.Session, a web.Auth) (bool, error) {
-	t := Task{ID: tc.TaskID}
-	canWriteTask, err := t.CanWrite(s, a)
+	canWriteTask, err := canWriteOrActAsAssignee(s, a, tc.TaskID)
 	if err != nil {
 		return false, err
 	}
@@ -61,6 +60,5 @@ func (tc *TaskComment) CanUpdate(s *xorm.Session, a web.Auth) (bool, error) {
 
 // CanCreate checks if a user can create a new comment
 func (tc *TaskComment) CanCreate(s *xorm.Session, a web.Auth) (bool, error) {
-	t := Task{ID: tc.TaskID}
-	return t.CanWrite(s, a)
+	return canWriteOrActAsAssignee(s, a, tc.TaskID)
 }

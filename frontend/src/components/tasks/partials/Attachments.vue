@@ -95,7 +95,7 @@
 							<Icon icon="copy" />
 						</BaseButton>
 						<BaseButton
-							v-if="editEnabled"
+							v-if="canDeleteAttachment(a)"
 							v-tooltip="$t('task.attachment.deleteTooltip')"
 							:aria-label="$t('task.attachment.deleteTooltip')"
 							class="attachment-info-meta-button"
@@ -104,7 +104,7 @@
 							<Icon icon="trash-alt" />
 						</BaseButton>
 						<BaseButton
-							v-if="editEnabled && canPreviewImage(a)"
+							v-if="editEnabled && !assigneeOnly && canPreviewImage(a)"
 							v-tooltip="task.coverImageAttachmentId === a.id
 								? $t('task.attachment.unsetAsCover')
 								: $t('task.attachment.setAsCover')"
@@ -247,6 +247,7 @@ import {getHumanSize} from '@/helpers/getHumanSize'
 import {useCopyToClipboard} from '@/composables/useCopyToClipboard'
 import {error, success} from '@/message'
 import {useTaskStore} from '@/stores/tasks'
+import {useAuthStore} from '@/stores/auth'
 import {useI18n} from 'vue-i18n'
 import FilePreview from '@/components/tasks/partials/FilePreview.vue'
 import ImageLightbox from '@/components/misc/ImageLightbox.vue'
@@ -257,14 +258,23 @@ type AudioPreviewInstance = InstanceType<typeof AudioPreview>
 const props = withDefaults(defineProps<{
 	task: ITask,
 	editEnabled?: boolean,
+	/** Read-only member who is assigned: may upload, but only delete own files and not change the cover. */
+	assigneeOnly?: boolean,
 }>(), {
 	editEnabled: true,
+	assigneeOnly: false,
 })
 
 const emit = defineEmits<{
 	'taskChanged': [ITask],
 	'update:attachments': [IAttachment[]],
 }>()
+
+const authStore = useAuthStore()
+
+function canDeleteAttachment(attachment: IAttachment) {
+	return props.editEnabled && (!props.assigneeOnly || attachment.createdBy?.id === authStore.info?.id)
+}
 
 const EDITOR_SELECTOR = '.tiptap, .tiptap__editor, [contenteditable]'
 

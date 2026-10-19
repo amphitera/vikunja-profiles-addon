@@ -154,7 +154,10 @@
 									:delay="isTouchDevice ? 300 : 1000"
 									:model-value="bucket.tasks"
 									:group="{name: 'tasks', put: shouldAcceptDrop(bucket) && !dragBucket}"
-									:disabled="!canWrite"
+									:disabled="!canMoveTasks"
+									:filter="canWrite ? undefined : '.is-locked'"
+									:prevent-on-filter="false"
+									:move="checkTaskMove"
 									:data-bucket-index="bucketIndex"
 									tag="ul"
 									:item-key="(task: ITask) => `bucket${bucket.id}-task${task.id}`"
@@ -216,10 +219,11 @@
 									<template #item="{element: task}">
 										<li
 											class="task-item"
+											:class="{'is-locked': !canMoveTask(task)}"
 											:data-task-id="task.id"
 										>
 											<span
-												v-if="canWrite && isTouchDevice"
+												v-if="canMoveTask(task) && isTouchDevice"
 												class="handle"
 												@click="openTask(task)"
 												@touchstart.passive="onHandleTouchStart"
@@ -431,7 +435,7 @@ const getTaskDraggableTaskComponentData = computed(() => (bucket: IBucket) => {
 		name: !drag.value ? 'move-card' : null,
 		class: [
 			'tasks',
-			{'dragging-disabled': !canWrite.value},
+			{'dragging-disabled': !canMoveTasks.value},
 		],
 	}
 })
@@ -448,6 +452,35 @@ const project = computed(() => projectId.value ? projectStore.projects[projectId
 const view = computed(() => project.value?.views.find(v => v.id === props.viewId) as IProjectView || null)
 const canWrite = computed(() => baseStore.currentProject?.maxPermission > Permissions.READ && view.value.bucketConfigurationMode === 'manual')
 const canCreateTasks = computed(() => canWrite.value && projectId.value > 0)
+
+// Read-only members may move cards assigned to them, except into or out of the done bucket:
+// closing tasks stays with members who have write access (enforced by the API as well).
+const canMoveTasks = computed(() => canWrite.value || (
+	view.value?.bucketConfigurationMode === 'manual' &&
+	projectId.value > 0 &&
+	// currentProject.maxPermission is null for read-only members, the project store has it.
+	project.value?.maxPermission === Permissions.READ
+))
+
+function canMoveTask(task: ITask) {
+	if (canWrite.value) {
+		return true
+	}
+	return canMoveTasks.value &&
+		!task.done &&
+		(task.assignees ?? []).some(a => a.id === authStore.info?.id)
+}
+
+function checkTaskMove(evt: {draggedContext: {element: ITask}, to: HTMLElement}) {
+	if (canWrite.value) {
+		return true
+	}
+	if (!canMoveTask(evt.draggedContext.element) || evt.to.dataset.bucketIndex === undefined) {
+		return false
+	}
+	const target = buckets.value[parseInt(evt.to.dataset.bucketIndex)]
+	return target !== undefined && target.id !== view.value?.doneBucketId
+}
 
 const isTouchDevice = ref(false)
 if (typeof window !== 'undefined') {
@@ -547,12 +580,14 @@ async function updateTaskPosition(e) {
 	drag.value = false
 
 	// Check if dropped on a sidebar project
-	const {moved} = await handleTaskDropToProject(e, (task) => {
-		kanbanStore.removeTaskInBucket(task)
-	})
+	if (canWrite.value) {
+		const {moved} = await handleTaskDropToProject(e, (task) => {
+			kanbanStore.removeTaskInBucket(task)
+		})
 
-	if (moved) {
-		return
+		if (moved) {
+			return
+		}
 	}
 
 	// If dropped outside kanban
@@ -637,7 +672,7 @@ async function updateTaskPosition(e) {
 		kanbanStore.setTaskInBucket(newTask)
 
 		// Make sure the first and second task don't both get position 0 assigned
-		if (newTaskIndex === 0 && taskAfter !== null && taskAfter.position === 0) {
+		if (canWrite.value && newTaskIndex === 0 && taskAfter !== null && taskAfter.position === 0) {
 			const taskAfterAfter = newBucket.tasks[newTaskIndex + 2] ?? null
 			const newTaskAfter = klona(taskAfter) // cloning the task to avoid pinia store manipulation
 			newTaskAfter.bucketId = newBucket.id

@@ -359,12 +359,13 @@
 
 					<!-- Attachments -->
 					<div
-						v-show="activeFields.attachments || hasAttachments"
+						v-show="activeFields.attachments || hasAttachments || isReadOnlyAssignee"
 						class="content attachments"
 					>
 						<Attachments
 							:ref="e => { setFieldRef('attachments', e); attachmentsRef = e as any }"
-							:edit-enabled="canWrite"
+							:edit-enabled="canComment"
+							:assignee-only="isReadOnlyAssignee"
 							:task="task"
 							@taskChanged="({coverImageAttachmentId}) => task.coverImageAttachmentId = coverImageAttachmentId"
 							@update:attachments="onAttachmentsUpdated"
@@ -425,7 +426,7 @@
 
 					<!-- Comments -->
 					<Comments
-						:can-write="canWrite"
+						:can-write="canComment"
 						:task-id="taskId"
 						:project-id="task.projectId"
 						:initial-comments="task.comments"
@@ -823,6 +824,13 @@ const canWrite = computed(() => (
 	task.value.maxPermission !== null &&
 	task.value.maxPermission > PERMISSIONS.READ
 ))
+
+// Read-only members may comment on and attach files to tasks assigned to them.
+const isReadOnlyAssignee = computed(() => (
+	!canWrite.value &&
+	(task.value.assignees ?? []).some(a => a.id === authStore.info?.id)
+))
+const canComment = computed(() => canWrite.value || isReadOnlyAssignee.value)
 
 const color = computed(() => {
 	const color = task.value.getHexColor

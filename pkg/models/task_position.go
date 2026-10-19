@@ -60,8 +60,7 @@ func (tp *TaskPosition) TableName() string {
 }
 
 func (tp *TaskPosition) CanUpdate(s *xorm.Session, a web.Auth) (bool, error) {
-	t := &Task{ID: tp.TaskID}
-	can, err := t.CanUpdate(s, a)
+	can, err := canWriteOrActAsAssignee(s, a, tp.TaskID)
 	if err != nil {
 		return false, err
 	}

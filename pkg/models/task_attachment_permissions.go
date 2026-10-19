@@ -30,7 +30,19 @@ func (ta *TaskAttachment) CanRead(s *xorm.Session, a web.Auth) (bool, int, error
 // CanDelete checks if the user can delete an attachment
 func (ta *TaskAttachment) CanDelete(s *xorm.Session, a web.Auth) (bool, error) {
 	t := &Task{ID: ta.TaskID}
-	return t.CanWrite(s, a)
+	canWrite, err := t.CanWrite(s, a)
+	if err != nil || canWrite {
+		return canWrite, err
+	}
+
+	// Assignees without write access may only remove what they uploaded themselves.
+	isAssignee, err := canActAsAssignee(s, a, ta.TaskID)
+	if err != nil || !isAssignee {
+		return false, err
+	}
+	return s.
+		Where("id = ? AND task_id = ? AND created_by_id = ?", ta.ID, ta.TaskID, a.GetID()).
+		Exist(&TaskAttachment{})
 }
 
 // CanCreate checks if the user can create an attachment
@@ -39,5 +51,9 @@ func (ta *TaskAttachment) CanCreate(s *xorm.Session, a web.Auth) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return t.CanCreate(s, a)
+	canCreate, err := t.CanCreate(s, a)
+	if err != nil || canCreate {
+		return canCreate, err
+	}
+	return canActAsAssignee(s, a, ta.TaskID)
 }

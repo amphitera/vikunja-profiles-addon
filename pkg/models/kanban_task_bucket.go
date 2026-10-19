@@ -57,8 +57,11 @@ func (b *TaskBucket) CanUpdate(s *xorm.Session, a web.Auth) (bool, error) {
 		ProjectViewID: b.ProjectViewID,
 	}
 	canDoBucket, err := bucket.canDoBucket(s, a)
-	if err != nil || !canDoBucket {
+	if err != nil {
 		return false, err
+	}
+	if !canDoBucket {
+		return b.canMoveAsAssignee(s, a)
 	}
 
 	// The task comes from the request body and may live in a different
