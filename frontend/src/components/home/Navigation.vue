@@ -74,6 +74,14 @@
 						{{ $t('team.title') }}
 					</RouterLink>
 				</li>
+				<li>
+					<RouterLink :to="{ name: 'people.index'}">
+						<span class="menu-item-icon icon">
+							<Icon icon="user" />
+						</span>
+						{{ $t('people.title') }}
+					</RouterLink>
+				</li>
 				<li v-if="timeTrackingEnabled">
 					<RouterLink :to="{ name: 'time-tracking'}">
 						<span class="menu-item-icon icon">
@@ -130,6 +138,13 @@
 			class="mbs-auto"
 			utm-medium="navigation"
 		/>
+		<BaseButton
+			class="menu-bottom-link source-code-link"
+			:href="SOURCE_CODE"
+			target="_blank"
+		>
+			{{ $t('people.sourceCode') }}
+		</BaseButton>
 
 		<div
 			v-if="!isMobile"
@@ -145,6 +160,8 @@ import {computed} from 'vue'
 
 import {SHORTCUTS} from '@/constants/shortcuts'
 import PoweredByLink from '@/components/home/PoweredByLink.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
+import {SOURCE_CODE} from '@/urls'
 import Logo from '@/components/home/Logo.vue'
 import Loading from '@/components/misc/Loading.vue'
 
@@ -171,6 +188,10 @@ const savedFilterProjects = computed(() => projectStore.savedFilterProjects as I
 </script>
 
 <style lang="scss" scoped>
+.source-code-link {
+	padding-block-start: 0;
+}
+
 .logo {
 	display: block;
 

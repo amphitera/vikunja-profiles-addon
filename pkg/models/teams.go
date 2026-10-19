@@ -84,6 +84,8 @@ type TeamMember struct {
 	UserID int64 `xorm:"bigint not null INDEX" json:"-"`
 	// Whether or not the member is an admin of the team. See the docs for more about what a team admin can do
 	Admin bool `xorm:"null" json:"admin" doc:"Whether the member is an admin of the team. Team admins can add and remove members and toggle other members' admin status."`
+	// The member's role in the team, e.g. "designer". Free text, set by team admins.
+	Role string `xorm:"'profile_role' varchar(250) null" json:"role" maxLength:"250" doc:"The member's role in the team, free text (e.g. \"designer\"). Only team admins can change it."`
 
 	// A timestamp when this relation was created. You cannot change this value.
 	Created time.Time `xorm:"created not null" json:"created" readOnly:"true" doc:"A timestamp when this member was added to the team. You cannot change this value."`
@@ -101,8 +103,10 @@ func (*TeamMember) TableName() string {
 type TeamUser struct {
 	user.User `xorm:"extends"`
 	// Whether the member is an admin of the team. See the docs for more about what a team admin can do
-	Admin  bool  `json:"admin"`
-	TeamID int64 `json:"-"`
+	Admin bool `json:"admin"`
+	// The member's role in the team, set by team admins.
+	Role   string `xorm:"'profile_role'" json:"role"`
+	TeamID int64  `json:"-"`
 }
 
 // GetTeamByID gets a team by its ID

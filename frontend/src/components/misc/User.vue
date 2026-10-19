@@ -4,7 +4,14 @@
 		:class="{'is-inline': isInline}"
 		:style="{'--avatar-size': `${avatarSize}px`}"
 	>
-		<span class="avatar-wrapper">
+		<component
+			:is="clickable ? 'button' : 'span'"
+			class="avatar-wrapper"
+			:class="{'is-clickable': clickable}"
+			:type="clickable ? 'button' : undefined"
+			:aria-label="clickable ? t('people.showProfileOf', {user: displayName}) : undefined"
+			@click="clickable && openPersonCard($event)"
+		>
 			<img
 				v-tooltip="displayName"
 				:height="avatarSize"
@@ -19,7 +26,7 @@
 				class="bot-badge"
 				aria-label="Bot"
 			>B</span>
-		</span>
+		</component>
 		<span
 			v-if="showUsername"
 			class="username"
@@ -33,16 +40,19 @@ import {useI18n} from 'vue-i18n'
 
 import {fetchAvatarBlobUrl, getDisplayName} from '@/models/user'
 import type {IUser} from '@/modelTypes/IUser'
+import {usePersonCardStore} from '@/stores/personCard'
 
 const props = withDefaults(defineProps<{
 	user: IUser,
 	showUsername?: boolean,
 	avatarSize?: number,
 	isInline?: boolean,
+	clickable?: boolean,
 }>(), {
 	showUsername: true,
 	avatarSize: 50,
 	isInline: false,
+	clickable: false,
 })
 
 const {t} = useI18n({useScope: 'global'})
@@ -50,6 +60,15 @@ const {t} = useI18n({useScope: 'global'})
 const displayName = computed(() => getDisplayName(props.user))
 const isBot = computed(() => ((props.user as IUser & {botOwnerId?: number}).botOwnerId ?? 0) > 0)
 const avatarSrc = ref('')
+
+const personCard = usePersonCardStore()
+
+// Avatars sit inside task rows and kanban cards, which navigate on click themselves.
+function openPersonCard(event: MouseEvent) {
+	event.preventDefault()
+	event.stopPropagation()
+	personCard.open(props.user)
+}
 
 async function loadAvatar() {
 	avatarSrc.value = await fetchAvatarBlobUrl(props.user, props.avatarSize)
@@ -72,6 +91,20 @@ watch(() => [props.user, props.avatarSize], loadAvatar, { immediate: true })
 	position: relative;
 	display: inline-flex;
 	margin-inline-end: .5rem;
+
+	&.is-clickable {
+		padding: 0;
+		border: 0;
+		background: none;
+		border-radius: 100%;
+		cursor: pointer;
+		transition: transform $transition;
+
+		&:hover,
+		&:focus-visible {
+			transform: scale(1.1);
+		}
+	}
 }
 
 .avatar {

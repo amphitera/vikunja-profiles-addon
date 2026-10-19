@@ -121,6 +121,7 @@
 								<User
 									:avatar-size="24"
 									:user="m"
+									clickable
 									class="m-0"
 								/>
 							</td>

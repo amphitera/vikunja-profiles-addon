@@ -1658,5 +1658,22 @@
       "reassignedSuccess": "Project owner reassigned.",
       "newOwnerLabel": "New owner"
     }
+  },
+  "people": {
+    "title": "People",
+    "profile": "Profile",
+    "openProfile": "Open full profile",
+    "showProfileOf": "Show the profile of {user}",
+    "activeTasks": "Currently assigned",
+    "doneTasks": "Done",
+    "noActiveTasks": "Nothing assigned right now.",
+    "noDoneTasks": "No finished tasks yet.",
+    "noRole": "No role set",
+    "editRole": "Change role",
+    "rolePlaceholder": "e.g. Designer",
+    "roleSaved": "The role was saved.",
+    "nobody": "You are not in any team yet, so there is nobody to show.",
+    "notFound": "This person is not a member of any of your teams.",
+    "sourceCode": "Source code"
   }
 }

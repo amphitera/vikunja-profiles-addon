@@ -63,6 +63,8 @@
 					/>
 				</Modal>
 
+				<PersonCardModal />
+
 				<BaseButton
 					v-shortcut="SHORTCUTS.showKeyboardShortcuts"
 					class="keyboard-shortcuts-button d-print-none"
@@ -84,6 +86,7 @@ import {SHORTCUTS} from '@/constants/shortcuts'
 import Navigation from '@/components/home/Navigation.vue'
 import QuickActions from '@/components/quick-actions/QuickActions.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import PersonCardModal from '@/components/people/PersonCardModal.vue'
 
 import {useBaseStore} from '@/stores/base'
 import {useLabelStore} from '@/stores/labels'
@@ -128,6 +131,8 @@ watch(() => route.name as string, (routeName) => {
 				'teams.edit',
 				'tasks.range',
 				'labels.index',
+				'people.index',
+				'people.show',
 				'migrate.start',
 				'migrate.wunderlist',
 				'projects.index',

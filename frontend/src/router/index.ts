@@ -402,6 +402,17 @@ const router = createRouter({
 			component: () => import('@/views/teams/EditTeam.vue'),
 		},
 		{
+			path: '/people',
+			name: 'people.index',
+			component: () => import('@/views/people/ListPeople.vue'),
+		},
+		{
+			path: '/people/:username',
+			name: 'people.show',
+			component: () => import('@/views/people/ShowPerson.vue'),
+			props: route => ({username: route.params.username as string}),
+		},
+		{
 			path: '/labels',
 			name: 'labels.index',
 			component: () => import('@/views/labels/ListLabels.vue'),

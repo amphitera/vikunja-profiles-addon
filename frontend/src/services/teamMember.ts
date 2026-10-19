@@ -1,4 +1,5 @@
 import AbstractService from './abstractService'
+import {apiV2Url} from '@/helpers/fetcher'
 import TeamMemberModel from '@/models/teamMember'
 import type {ITeamMember} from '@/modelTypes/ITeamMember'
 
@@ -13,6 +14,19 @@ export default class TeamMemberService extends AbstractService<ITeamMember> {
 
 	modelFactory(data) {
 		return new TeamMemberModel(data)
+	}
+
+	async setRole(teamId: number, username: string, role: string): Promise<string> {
+		const cancel = this.setLoading()
+		try {
+			const {data} = await this.http.put(
+				apiV2Url(`teams/${teamId}/members/${encodeURIComponent(username)}/role`),
+				{role},
+			)
+			return data.role
+		} finally {
+			cancel()
+		}
 	}
 
 	beforeCreate(model) {

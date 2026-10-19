@@ -41,10 +41,15 @@
 				<figure class="media-left is-hidden-mobile">
 					<img
 						:src="avatarFor(c.author, 48)"
+						role="button"
+						tabindex="0"
+						:aria-label="$t('people.showProfileOf', {user: getDisplayName(c.author)})"
 						alt=""
-						class="image is-avatar"
+						class="image is-avatar is-clickable"
 						height="48"
 						width="48"
+						@click="personCard.open(c.author)"
+						@keydown.enter="personCard.open(c.author)"
 					>
 					<figcaption class="is-sr-only">
 						{{ $t('misc.avatarOfUser', {user: getDisplayName(c.author)}) }}
@@ -54,10 +59,15 @@
 					<div class="comment-info">
 						<img
 							:src="avatarFor(c.author, 20)"
+							role="button"
+							tabindex="0"
+							:aria-label="$t('people.showProfileOf', {user: getDisplayName(c.author)})"
 							alt=""
-							class="image is-avatar d-print-none"
+							class="image is-avatar is-clickable d-print-none"
 							height="20"
 							width="20"
+							@click="personCard.open(c.author)"
+							@keydown.enter="personCard.open(c.author)"
 						>
 						<strong>{{ getDisplayName(c.author) }}</strong>
 						<span
@@ -246,6 +256,7 @@ import {fetchAvatarBlobUrl, getDisplayName} from '@/models/user'
 import type {IUser} from '@/modelTypes/IUser'
 import {useConfigStore} from '@/stores/config'
 import {useAuthStore} from '@/stores/auth'
+import {usePersonCardStore} from '@/stores/personCard'
 import Reactions from '@/components/input/Reactions.vue'
 import {useCopyToClipboard} from '@/composables/useCopyToClipboard'
 import {commentReplyContextKey, scrollAndHighlightComment} from '@/components/tasks/partials/commentReplyContext'
@@ -264,6 +275,7 @@ const copy = useCopyToClipboard()
 const {t} = useI18n({useScope: 'global'})
 const configStore = useConfigStore()
 const authStore = useAuthStore()
+const personCard = usePersonCardStore()
 
 const localSortOrder = ref<'asc' | 'desc' | null>(null)
 const commentSortOrder = computed(() => localSortOrder.value ?? authStore.settings.frontendSettings.commentSortOrder ?? 'asc')
@@ -624,6 +636,10 @@ function getCommentUrl(commentId: string) {
 		color: var(--grey-dark, hsl(0, 0%, 29%));
 		border-color: var(--grey-dark, hsl(0, 0%, 29%));
 	}
+}
+
+.image.is-avatar.is-clickable {
+	cursor: pointer;
 }
 
 .image.is-avatar {

@@ -36,6 +36,7 @@ defineEmits<{
 				:avatar-size="avatarSize"
 				:show-username="true"
 				:user="user"
+				clickable
 				:class="{'m-2': canRemove && !disabled}"
 			/>
 			<BaseButton

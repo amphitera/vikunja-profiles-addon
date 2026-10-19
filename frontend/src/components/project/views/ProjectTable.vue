@@ -325,6 +325,7 @@
 											:avatar-size="27"
 											:show-username="false"
 											:user="t.createdBy"
+											clickable
 										/>
 									</td>
 								</tr>

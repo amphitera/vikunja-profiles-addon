@@ -5,6 +5,7 @@ import type {IProject} from '@/modelTypes/IProject'
 
 export default class TeamMemberModel extends UserModel implements ITeamMember {
 	admin = false
+	role = ''
 	teamId: IProject['id'] = 0
 
 	constructor(data: Partial<ITeamMember>) {
