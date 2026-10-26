@@ -72,6 +72,7 @@
 						<template #item="{element: t, index}">
 							<SingleTaskInProject
 								:ref="(el) => setTaskRef(el, index)"
+								:class="groupPositions.has(t.id) ? ['is-grouped', `is-grouped-${groupPositions.get(t.id)}`] : []"
 								:show-list-color="false"
 								:can-mark-as-done="canWrite || isPseudoProject"
 								:the-task="t"
@@ -115,6 +116,7 @@ import SortPopup from '@/components/project/partials/SortPopup.vue'
 import {useTaskList} from '@/composables/useTaskList'
 import {useTaskDragToProject} from '@/composables/useTaskDragToProject'
 import {shouldShowTaskInListView} from '@/composables/useTaskListFiltering'
+import {groupRelatedTasks, type TaskGroupPosition} from '@/helpers/groupRelatedTasks'
 import {PERMISSIONS as Permissions} from '@/constants/permissions'
 import {calculateItemPosition} from '@/helpers/calculateItemPosition'
 import type {ITask} from '@/modelTypes/ITask'
@@ -165,10 +167,14 @@ const taskPositionService = ref(new TaskPositionService())
 const _savedFilter = useSavedFilter(() => isSavedFilter({id: projectId.value}) ? projectId.value : undefined).filter
 
 const tasks = ref<ITask[]>([])
+const groupPositions = ref(new Map<ITask['id'], TaskGroupPosition>())
 watch(
 	allTasks,
 	() => {
-		tasks.value = ([...allTasks.value]).filter(t => shouldShowTaskInListView(t, allTasks.value))
+		const visible = ([...allTasks.value]).filter(t => shouldShowTaskInListView(t, allTasks.value))
+		const grouped = groupRelatedTasks(visible)
+		tasks.value = grouped.tasks
+		groupPositions.value = grouped.positions
 	},
 )
 
@@ -421,5 +427,18 @@ onBeforeUnmount(() => {
 	:deep(.card) {
 		margin-block-end: 0;
 	}
+}
+
+// Related tasks stand together; the bar on the left ties them into one group.
+.list-view :deep(.is-grouped) {
+	box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.list-view :deep(.is-grouped-first) {
+	margin-block-start: .35rem;
+}
+
+.list-view :deep(.is-grouped-last) {
+	margin-block-end: .35rem;
 }
 </style>

@@ -78,8 +78,16 @@ func (t *Task) updateTaskAssignees(s *xorm.Session, assignees []*user.User, doer
 	if len(assignees) == 0 && len(t.Assignees) > 0 {
 		_, err = s.Where("task_id = ?", t.ID).
 			Delete(&TaskAssginee{})
+		if err != nil {
+			return err
+		}
+		for _, old := range t.Assignees {
+			if err := addTaskEvent(s, t.ID, doer, TaskEventAssigneeRemoved, old.GetName(), ""); err != nil {
+				return err
+			}
+		}
 		t.setTaskAssignees(assignees)
-		return err
+		return nil
 	}
 
 	// If we didn't change anything (from 0 to zero) don't do anything.
@@ -118,6 +126,11 @@ func (t *Task) updateTaskAssignees(s *xorm.Session, assignees []*user.User, doer
 			Delete(&TaskAssginee{})
 		if err != nil {
 			return err
+		}
+		for _, id := range assigneesToDelete {
+			if err := addTaskEvent(s, t.ID, doer, TaskEventAssigneeRemoved, oldAssignees[id].GetName(), ""); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -177,6 +190,19 @@ func (la *TaskAssginee) Delete(s *xorm.Session, a web.Auth) (err error) {
 	}
 
 	err = updateProjectByTaskID(s, la.TaskID)
+	if err != nil {
+		return err
+	}
+
+	removed, err := user.GetUserByID(s, la.UserID)
+	if err != nil && !user.IsErrUserDoesNotExist(err) {
+		return err
+	}
+	removedName := ""
+	if removed != nil {
+		removedName = removed.GetName()
+	}
+	err = addTaskEvent(s, la.TaskID, a, TaskEventAssigneeRemoved, removedName, "")
 	if err != nil {
 		return err
 	}
@@ -260,6 +286,11 @@ func (t *Task) addNewAssigneeByID(s *xorm.Session, newAssigneeID int64, project 
 	}
 
 	err = subscribeUserImplicitly(s, SubscriptionEntityTask, t.ID, newAssignee)
+	if err != nil {
+		return err
+	}
+
+	err = addTaskEvent(s, t.ID, auth, TaskEventAssigneeAdded, "", newAssignee.GetName())
 	if err != nil {
 		return err
 	}

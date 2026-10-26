@@ -96,6 +96,7 @@ import {
 	faClock,
 	faComments,
 	faSave,
+	faSquare,
 	faSquareCheck,
 	faStar,
 	faSun,
@@ -114,6 +115,7 @@ library.add(faLink)
 library.add(faUnlink)
 library.add(faParagraph)
 library.add(faSquareCheck)
+library.add(faSquare)
 library.add(faTable)
 library.add(faFile)
 library.add(faFileImage)

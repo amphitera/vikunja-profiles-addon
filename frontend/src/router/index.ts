@@ -402,6 +402,11 @@ const router = createRouter({
 			component: () => import('@/views/teams/EditTeam.vue'),
 		},
 		{
+			path: '/tasks/created-by-me',
+			name: 'tasks.createdByMe',
+			component: () => import('@/views/tasks/CreatedByMe.vue'),
+		},
+		{
 			path: '/people',
 			name: 'people.index',
 			component: () => import('@/views/people/ListPeople.vue'),

@@ -74,6 +74,18 @@
 						{{ $t('team.title') }}
 					</RouterLink>
 				</li>
+				<li v-if="createdByMe.tasks.value.length > 0">
+					<RouterLink :to="{ name: 'tasks.createdByMe'}">
+						<span class="menu-item-icon icon">
+							<Icon icon="list-check" />
+						</span>
+						{{ $t('createdByMe.title') }}
+						<span
+							v-if="createdByMe.openCount.value > 0"
+							class="menu-counter"
+						>{{ createdByMe.openCount.value }}</span>
+					</RouterLink>
+				</li>
 				<li>
 					<RouterLink :to="{ name: 'people.index'}">
 						<span class="menu-item-icon icon">
@@ -172,12 +184,16 @@ import {PRO_FEATURE} from '@/constants/proFeatures'
 import ProjectsNavigation from '@/components/home/ProjectsNavigation.vue'
 import type {IProject} from '@/modelTypes/IProject'
 import {useSidebarResize} from '@/composables/useSidebarResize'
+import {useCreatedByMe} from '@/composables/useCreatedByMe'
 
 const baseStore = useBaseStore()
 const projectStore = useProjectStore()
 const configStore = useConfigStore()
 
 const timeTrackingEnabled = computed(() => configStore.isProFeatureEnabled(PRO_FEATURE.TIME_TRACKING))
+
+const createdByMe = useCreatedByMe()
+createdByMe.load()
 
 const {sidebarWidth, isResizing, startResize, isMobile} = useSidebarResize()
 
@@ -277,5 +293,15 @@ const savedFilterProjects = computed(() => projectStore.savedFilterProjects as I
 
 .menu + .menu {
 	padding-block-start: math.div($navbar-padding, 2);
+}
+.menu-counter {
+	margin-inline-start: auto;
+	min-inline-size: 1.4rem;
+	padding: 0 .4rem;
+	border-radius: 1rem;
+	background: var(--grey-200);
+	color: var(--grey-700);
+	font-size: .75rem;
+	text-align: center;
 }
 </style>

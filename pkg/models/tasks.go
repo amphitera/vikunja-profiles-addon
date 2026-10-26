@@ -1070,6 +1070,7 @@ func createTasks(s *xorm.Session, projectID int64, tasks []*Task, a web.Auth, up
 		}
 
 		t.HexColor = utils.NormalizeHex(t.HexColor)
+		t.syncDueDateWithEndDate(&Task{})
 
 		_, err = s.Insert(t)
 		if err != nil {
@@ -1266,6 +1267,18 @@ func setTasksInBucketInViews(s *xorm.Session, tasks []*Task, a web.Auth, setBuck
 // @Failure 500 {object} models.Message "Internal error"
 // @Router /tasks/{id} [post]
 // Update updates a project task by delegating to the shared bulk helper.
+// syncDueDateWithEndDate makes the end of a task's period its due date: deadlines are set
+// through the period, while the overview, overdue highlighting and reminders only look at
+// the due date. A due date someone set to a different value on purpose is left alone.
+func (t *Task) syncDueDateWithEndDate(old *Task) {
+	followsEnd := old.DueDate.IsZero() || old.DueDate.Equal(old.EndDate)
+	dueUntouched := t.DueDate.IsZero() || t.DueDate.Equal(old.DueDate)
+	if !followsEnd || !dueUntouched {
+		return
+	}
+	t.DueDate = t.EndDate
+}
+
 func (t *Task) Update(s *xorm.Session, a web.Auth) (err error) {
 	return t.updateSingleTask(s, a, nil)
 }
@@ -1379,6 +1392,17 @@ func (t *Task) updateSingleTask(s *xorm.Session, a web.Auth, fields []string) (e
 
 	if err := validateRepeatAfter(t.RepeatAfter); err != nil {
 		return err
+	}
+
+	t.syncDueDateWithEndDate(&ot)
+	if fieldSet["end_date"] && !fieldSet["due_date"] {
+		colsToUpdate = append(colsToUpdate, "due_date")
+	}
+	if !t.EndDate.Truncate(time.Second).Equal(ot.EndDate.Truncate(time.Second)) {
+		err = addTaskEvent(s, t.ID, a, TaskEventEndDateChanged, formatEventDate(ot.EndDate), formatEventDate(t.EndDate))
+		if err != nil {
+			return err
+		}
 	}
 
 	// If the task is being moved between projects, make sure to move the bucket + index as well

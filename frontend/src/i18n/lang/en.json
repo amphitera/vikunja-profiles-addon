@@ -1065,7 +1065,9 @@
         "delete": "Delete",
         "favorite": "Add to Favorites",
         "unfavorite": "Remove from Favorites"
-      }
+      },
+      "more": "More",
+      "noAssignees": "Nobody yet"
     },
     "attributes": {
       "assignees": "Assignees",
@@ -1260,6 +1262,51 @@
       "dateTime": "Combine any of the date formats with \"{time}\" (or {timePM}) to set a time.",
       "repeats": "Repeating tasks",
       "repeatsDescription": "To set a task as repeating in an interval, simply add '{suffix}' to the task text. The amount needs to be a number and can be omitted to use just the type (see examples)."
+    },
+    "history": {
+      "title": "History",
+      "endSet": "Deadline set: {to}",
+      "endRemoved": "Deadline removed",
+      "endMoved": "Deadline moved: {from} → {to}",
+      "reassigned": "Reassigned: {from} → {to}",
+      "assigned": "Assigned: {name}",
+      "unassigned": "Unassigned: {name}"
+    },
+    "period": {
+      "title": "Period",
+      "from": "from",
+      "to": "to",
+      "chooseStart": "start",
+      "chooseEnd": "end",
+      "weeks": "{count} week | {count} weeks",
+      "none": "No deadline",
+      "overdue": "Overdue by {count} day | Overdue by {count} days",
+      "today": "Due today",
+      "left": "{count} day left | {count} days left"
+    },
+    "parent": {
+      "title": "Part of",
+      "change": "Change",
+      "remove": "Remove",
+      "searchPlaceholder": "Search for the main task…",
+      "none": "Not part of another task",
+      "children": "Inside: {done} of {total} done"
+    },
+    "newTask": {
+      "button": "Task",
+      "title": "New task",
+      "titlePlaceholder": "What needs to be done?",
+      "project": "Project",
+      "assignees": "Assignees",
+      "assigneesPlaceholder": "Type a name…",
+      "description": "Description",
+      "files": "Files",
+      "addFiles": "Add files",
+      "create": "Create",
+      "createAndNext": "Create and add another",
+      "created": "Task created",
+      "titleRequired": "Please enter a title",
+      "open": "Open"
     }
   },
   "team": {
@@ -1675,5 +1722,20 @@
     "nobody": "You are not in any team yet, so there is nobody to show.",
     "notFound": "This person is not a member of any of your teams.",
     "sourceCode": "Source code"
+  },
+  "createdByMe": {
+    "title": "Assigned by me",
+    "sort": "Sort",
+    "sortEnd": "By end date",
+    "sortStart": "By start date",
+    "sortAssignee": "By assignee",
+    "sortTitle": "By title",
+    "sortCreated": "Newest first",
+    "showDone": "Show done",
+    "empty": "You have not assigned any tasks yet.",
+    "noDeadline": "no deadline",
+    "nobody": "nobody",
+    "markDone": "Mark as done",
+    "markUndone": "Mark as not done"
   }
 }
