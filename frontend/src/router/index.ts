@@ -404,7 +404,7 @@ const router = createRouter({
 		{
 			path: '/files/:projectId?/:folderId?',
 			name: 'files',
-			component: () => import('@/views/files/FilesView.vue'),
+			component: () => import('@/views/drive/DriveView.vue'),
 		},
 		{
 			path: '/tasks/created-by-me',
