@@ -49,6 +49,11 @@
                     "comment": "The public facing URL where your users can reach Vikunja. Used in emails and for the communication between api and frontend. The url must be a valid http or https url. This setting is required when cors.enable is true."
                 },
                 {
+                    "key": "drivepublicurl",
+                    "default_value": "",
+                    "comment": "An optional second public URL of this same instance that drive uploads, downloads and WebDAV go through, for example to route big files over a different proxy. Leave empty to use publicurl. When set, add the frontend's origin to cors.origins."
+                },
+                {
                     "key": "rootpath",
                     "default_value": "\u003crootpath\u003e",
                     "comment": "The base path on the file system where Vikunja stores its data (database, files, logs, plugins).\nDefaults to the current working directory. When running as a systemd service, this respects the WorkingDirectory= setting.\nVikunja will also look in this path for a config file, so you could provide only this variable to point to a folder\nwith a config file which will then be used.\nWhen a config file is pinned with the `--config` flag, this search is skipped and rootpath defaults to the directory containing that config file.\nA relative rootpath set in a pinned config file is resolved against that same directory."

@@ -40,6 +40,7 @@ import {
 	faFileImage,
 	faFilePdf,
 	faFillDrip,
+	faFolder,
 	faFilter,
 	faForward,
 	faGripLines,
@@ -156,6 +157,7 @@ library.add(faExclamationCircle)
 library.add(faEye)
 library.add(faEyeSlash)
 library.add(faFillDrip)
+library.add(faFolder)
 library.add(faFilter)
 library.add(faForward)
 library.add(faGripLines)

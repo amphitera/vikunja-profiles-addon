@@ -132,6 +132,23 @@
 		>
 			{{ $t('task.attachment.upload') }}
 		</XButton>
+		<XButton
+			v-if="editEnabled"
+			:disabled="loading"
+			class="mbe-4 mis-2"
+			icon="folder"
+			variant="secondary"
+			:shadow="false"
+			@click="showDrivePicker = true"
+		>
+			{{ $t('drive.fromDrive') }}
+		</XButton>
+		<DrivePicker
+			:enabled="showDrivePicker"
+			:project-id="task.projectId"
+			@close="showDrivePicker = false"
+			@pick="attachFromDrive"
+		/>
 
 		<!-- Dropzone -->
 		<Teleport :to="dropzoneTeleportTarget">
@@ -242,6 +259,8 @@ import type {ITask} from '@/modelTypes/ITask'
 
 import {formatDateLong} from '@/helpers/time/formatDate'
 import {uploadFiles, generateAttachmentUrl} from '@/helpers/attachments'
+import {attachToTask as attachDriveItem, type DriveItem} from '@/services/drive'
+import DrivePicker from '@/components/tasks/partials/DrivePicker.vue'
 import {downloadBlob} from '@/helpers/downloadBlob'
 import {getHumanSize} from '@/helpers/getHumanSize'
 import {useCopyToClipboard} from '@/composables/useCopyToClipboard'
@@ -423,6 +442,15 @@ function attachmentMetaTooltip(attachment: IAttachment): string {
 	return attachment.file.mime
 		? `${attachment.file.mime} · ${createdBy}`
 		: createdBy
+}
+
+const showDrivePicker = ref(false)
+
+async function attachFromDrive(item: DriveItem) {
+	showDrivePicker.value = false
+	const attachment = await attachDriveItem(props.task.id, item.id)
+	emit('update:attachments', [...attachments.value, attachmentService.modelFactory(attachment)])
+	success({message: t('drive.attached', {name: item.name})})
 }
 
 function downloadAttachment(attachment: IAttachment) {

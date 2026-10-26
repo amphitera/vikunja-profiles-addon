@@ -402,6 +402,11 @@ const router = createRouter({
 			component: () => import('@/views/teams/EditTeam.vue'),
 		},
 		{
+			path: '/files/:projectId?/:folderId?',
+			name: 'files',
+			component: () => import('@/views/files/FilesView.vue'),
+		},
+		{
 			path: '/tasks/created-by-me',
 			name: 'tasks.createdByMe',
 			component: () => import('@/views/tasks/CreatedByMe.vue'),

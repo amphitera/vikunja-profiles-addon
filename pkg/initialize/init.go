@@ -139,6 +139,7 @@ func FullInit() {
 	models.RegisterOverdueReminderCron()
 	models.RegisterUserDeletionCron()
 	models.RegisterTaskCleanupCron()
+	models.RegisterDriveTrashCron()
 	models.RegisterOldExportCleanupCron()
 	models.RegisterAddTaskToFilterViewCron()
 	user.RegisterTokenCleanupCron()

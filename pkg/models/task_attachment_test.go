@@ -162,8 +162,15 @@ func TestTaskAttachment_Delete(t *testing.T) {
 		ta := &TaskAttachment{ID: 1}
 		err := ta.Delete(s, u)
 		require.NoError(t, err)
-		// Check if the file itself was deleted
-		_, err = files.FileStat(ta.File) // The new file has the id 2 since it's the second attachment
+		// Attachments 3 and 4 use the same file, so it must survive.
+		_, err = files.FileStat(ta.File)
+		require.NoError(t, err)
+
+		for _, id := range []int64{3, 4} {
+			require.NoError(t, (&TaskAttachment{ID: id}).Delete(s, u))
+		}
+		// With the last attachment gone, the file goes too.
+		_, err = files.FileStat(ta.File)
 		require.Error(t, err)
 		assert.True(t, os.IsNotExist(err))
 	})

@@ -73,6 +73,9 @@ func GetTables() []interface{} {
 		&OAuthCode{},
 		&TimeEntry{},
 		&TaskEvent{},
+		&DriveFolder{},
+		&DriveItem{},
+		&DriveItemVersion{},
 	}
 }
 

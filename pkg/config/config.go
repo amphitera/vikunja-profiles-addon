@@ -50,6 +50,7 @@ const (
 	ServiceUnixSocket                     Key = `service.unixsocket`
 	ServiceUnixSocketMode                 Key = `service.unixsocketmode`
 	ServicePublicURL                      Key = `service.publicurl`
+	ServiceDrivePublicURL                 Key = `service.drivepublicurl`
 	ServiceEnableCaldav                   Key = `service.enablecaldav`
 	ServiceRootpath                       Key = `service.rootpath`
 	ServiceMaxItemsPerPage                Key = `service.maxitemsperpage`
@@ -368,6 +369,7 @@ func initDefaultConfig() {
 	ServiceInterface.setDefault(":3456")
 	ServiceUnixSocket.setDefault("")
 	ServicePublicURL.setDefault("")
+	ServiceDrivePublicURL.setDefault("")
 	ServiceEnableCaldav.setDefault(true)
 
 	ServiceRootpath.setDefault(getRootpathLocation())

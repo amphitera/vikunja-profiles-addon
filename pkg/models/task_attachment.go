@@ -442,21 +442,37 @@ func (ta *TaskAttachment) Delete(s *xorm.Session, a web.Auth) error {
 	}
 
 	// Delete it
+	// An empty bean: a loaded one adds all its fields as conditions, and the stored
+	// timestamp does not always compare equal, which silently deleted nothing.
 	_, err = s.
 		Where("task_id = ? AND id = ?", ta.TaskID, ta.ID).
-		Delete(ta)
+		Delete(&TaskAttachment{})
 	if err != nil {
 		return err
 	}
 
-	// Delete the underlying file
-	err = ta.File.Delete(s)
-	// If the file does not exist, we don't want to error out
-	if err != nil && files.IsErrFileDoesNotExist(err) {
-		return nil
-	}
+	// The same stored file may still be shown in the drive or attached to another task.
+	keepFile, err := fileUsedByDrive(s, ta.FileID)
 	if err != nil {
 		return err
+	}
+	if !keepFile {
+		keepFile, err = fileUsedByOtherAttachments(s, ta.FileID, ta.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if !keepFile {
+		// Delete the underlying file
+		err = ta.File.Delete(s)
+		// If the file does not exist, we don't want to error out
+		if err != nil && files.IsErrFileDoesNotExist(err) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
 	}
 
 	doer, _ := user.GetFromAuth(a)

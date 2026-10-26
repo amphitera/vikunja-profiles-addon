@@ -27,7 +27,6 @@ import (
 
 	"code.vikunja.io/api/pkg/config"
 	"code.vikunja.io/api/pkg/events"
-	"code.vikunja.io/api/pkg/files"
 	"code.vikunja.io/api/pkg/log"
 	"code.vikunja.io/api/pkg/user"
 	"code.vikunja.io/api/pkg/utils"
@@ -2160,19 +2159,19 @@ func hardDeleteTask(s *xorm.Session, t *Task) (err error) {
 	if err != nil {
 		return err
 	}
+	_, err = s.Where("task_id = ?", t.ID).Delete(&TaskAttachment{})
+	if err != nil {
+		return err
+	}
+	// After the rows are gone, so a file still shown in the drive or on another task survives.
 	for _, attachment := range attachments {
 		if attachment.File == nil {
 			continue
 		}
-		err = attachment.File.Delete(s)
-		if err != nil && !files.IsErrFileDoesNotExist(err) {
+		err = deleteFileIfUnused(s, attachment.FileID)
+		if err != nil {
 			return err
 		}
-	}
-
-	_, err = s.Where("task_id = ?", t.ID).Delete(&TaskAttachment{})
-	if err != nil {
-		return err
 	}
 
 	commentIDs := []int64{}

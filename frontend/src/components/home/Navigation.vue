@@ -74,6 +74,14 @@
 						{{ $t('team.title') }}
 					</RouterLink>
 				</li>
+				<li>
+					<RouterLink :to="{ name: 'files'}">
+						<span class="menu-item-icon icon">
+							<Icon icon="folder" />
+						</span>
+						{{ $t('drive.title') }}
+					</RouterLink>
+				</li>
 				<li v-if="createdByMe.tasks.value.length > 0">
 					<RouterLink :to="{ name: 'tasks.createdByMe'}">
 						<span class="menu-item-icon icon">

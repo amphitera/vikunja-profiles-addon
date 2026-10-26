@@ -36,6 +36,7 @@ import (
 type VikunjaInfos struct {
 	Version                    string            `json:"version" doc:"The Vikunja version this instance runs."`
 	FrontendURL                string            `json:"frontend_url" doc:"The publicly configured frontend URL of this instance."`
+	DriveURL                   string            `json:"drive_url" doc:"The base URL file transfers of the drive and WebDAV go through. Empty when they use the frontend URL."`
 	Motd                       string            `json:"motd" doc:"The message of the day, shown to all users."`
 	LinkSharingEnabled         bool              `json:"link_sharing_enabled" doc:"Whether sharing projects via public links is enabled."`
 	MaxFileSize                string            `json:"max_file_size" doc:"The maximum allowed upload size, as a human-readable string (e.g. 20MB)."`
@@ -95,6 +96,7 @@ func BuildInfo() VikunjaInfos {
 	info := VikunjaInfos{
 		Version:                version.Version,
 		FrontendURL:            config.ServicePublicURL.GetString(),
+		DriveURL:               config.ServiceDrivePublicURL.GetString(),
 		Motd:                   config.ServiceMotd.GetString(),
 		LinkSharingEnabled:     config.ServiceEnableLinkSharing.GetBool(),
 		MaxFileSize:            config.FilesMaxSize.GetString(),

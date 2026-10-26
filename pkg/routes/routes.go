@@ -82,6 +82,7 @@ import (
 	adminapi "code.vikunja.io/api/pkg/routes/api/v1/admin"
 	apiv2 "code.vikunja.io/api/pkg/routes/api/v2"
 	"code.vikunja.io/api/pkg/routes/caldav"
+	"code.vikunja.io/api/pkg/routes/drivedav"
 	"code.vikunja.io/api/pkg/routes/feeds"
 	vmiddleware "code.vikunja.io/api/pkg/routes/middleware"
 	"code.vikunja.io/api/pkg/version"
@@ -252,6 +253,14 @@ func RegisterRoutes(e *echo.Echo) {
 		registerCalDavRoutes(c)
 	}
 
+	// Drive over WebDAV, authenticated like CalDAV (CalDAV token, API token or password)
+	dav := e.Group(drivedav.Prefix)
+	dav.Use(basicAuthRateLimit)
+	dav.Use(middleware.BasicAuth(caldav.BasicAuth))
+	dav.Any("", drivedav.Handler)
+	dav.Any("/", drivedav.Handler)
+	dav.Any("/*", drivedav.Handler)
+
 	// Feeds routes (Atom feed for user notifications)
 	f := e.Group("/feeds")
 	f.Use(basicAuthRateLimit)
@@ -330,6 +339,7 @@ var unauthenticatedAPIPaths = map[string]bool{
 	"/api/v2/docs/scalar.standalone.js": true,
 	"/api/v2/schemas/:schema":           true,
 	"/api/v2/info":                      true,
+	"/api/v2/drive/download/:token":     true,
 
 	"/api/v2/register":                       true,
 	"/api/v2/user/password/token":            true,
